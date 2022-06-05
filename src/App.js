@@ -10,16 +10,33 @@ function App() {
     isAuthWindowOpen: false,
   })
 
+  const [userData, setUserData] = useState({
+    email: '',
+    login: '',
+    password: ''
+})
+
+  const isAuthHandler = () => {
+    setState(prev => {
+    return {
+        ...prev,
+        isAuth: !state.isAuth
+      }
+  })
+  }
+
   const authWindowOpenHandler = () => {
-    setState({
-      ...state,
-      isAuthWindowOpen: !state.isAuthWindowOpen
-    })
+    setState(prev => {
+      return {
+        ...prev,
+        isAuthWindowOpen: !state.isAuthWindowOpen
+      }
+  })
   }
   
   return (
     <div className='App'>
-      <AppContext.Provider value = {{state,authWindowOpenHandler}} >
+      <AppContext.Provider value = {{state,authWindowOpenHandler,userData,setUserData,isAuthHandler}} >
         <Header />
         {state.isAuthWindowOpen ? <RegLogin /> : null}
       </AppContext.Provider>
