@@ -2,16 +2,26 @@ import { useState } from 'react';
 import Header from './components/Header/header';
 import AppContext from './context/AppContext';
 import './App.css'
+import RegLogin from './components/RegLogin/RegLogin';
 
 function App() {
   const [state, setState] = useState({
     isAuth: false,
+    isAuthWindowOpen: false,
   })
+
+  const authWindowOpenHandler = () => {
+    setState({
+      ...state,
+      isAuthWindowOpen: !state.isAuthWindowOpen
+    })
+  }
   
   return (
-    <div>
-      <AppContext.Provider value = {{state}} >
+    <div className='App'>
+      <AppContext.Provider value = {{state,authWindowOpenHandler}} >
         <Header />
+        {state.isAuthWindowOpen ? <RegLogin /> : null}
       </AppContext.Provider>
     </div>
   );
