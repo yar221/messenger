@@ -5,10 +5,11 @@
     justify-content: space-between;
     align-items: center;
     border-radius: 0 0 25px 25px;
+    padding: 15px 15px;
 }
 
 .header-logo{
-    font-size: 52px;
+    font-size: 42px;
     font-weight: 400;
     color: rgb(41, 26, 4);
     cursor: pointer;
@@ -50,21 +51,6 @@
     z-index: 15;    
     border-radius: 15px;
 }
-/* 
-.authorise-krest span{
-    width: 2px;
-    height: 25px;
-    background-color: #000;
-    transform: rotate(45deg);
-}
-
-.authorise-krest::after{
-    content: '';
-    width: 2px;
-    height: 25px;
-    background-color: #000;
-    transform: rotate(-45deg);
-} */
 
 .authorise-krest{
     position: absolute;
@@ -109,4 +95,9 @@
     bottom: 37px;
     color: #2d30e9;
     cursor: pointer;
+}
+
+.header-auth_text{
+    font-size: 18px;
+    margin-right: 10px;
 }
