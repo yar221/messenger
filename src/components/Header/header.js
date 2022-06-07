@@ -5,7 +5,7 @@ import { useContext } from 'react'
 import AppContext from '../../context/AppContext'
 
 const Header = () => {
-    const {state, authWindowOpenHandler} = useContext(AppContext)
+    const {state, authWindowOpenHandler, userData} = useContext(AppContext)
 
     return(
         <header className='header'>
@@ -14,7 +14,7 @@ const Header = () => {
                     <h1 className="header-logo">Messenger</h1>
                     <div className="header-auth" onClick={authWindowOpenHandler}>
                         {!state.isAuth && <span className='header-auth_text'>You aren't in your account</span>}
-                        {state.isAuth && <span className='header-auth_text'>Login</span>}
+                        {state.isAuth && <span className='header-auth_text'>{userData.login}</span>}
                         <img src={!state.isAuth ? noAuthImg : authImg} alt={noAuthImg} />
                     </div>
                 </div>

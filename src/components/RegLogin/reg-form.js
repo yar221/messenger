@@ -1,33 +1,33 @@
 import './forms.scss'
-import { useContext, useState } from 'react';
-import app from '../../firebase';
-import db from '../../firebase';
+import { useContext } from 'react';
+import {app} from '../../firebase';
 import axios from 'axios';
 import AppContext from '../../context/AppContext';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 const RegForm = (props) => {
 
     const {userData,setUserData,authWindowOpenHandler,isAuthHandler} = useContext(AppContext)
 
     const registerHandler = async () => {
-        isAuthHandler();
         
-        // const auth = getAuth(app);
-
-        // createUserWithEmailAndPassword(auth, userData.email, userData.password)
-
-        // .then((userCredential) => {
-        //     const user = userCredential.user;
-        // })
-        // .catch((error) => {
-        //     console.error(`Error code: ${error.code}\r\nError messege: ${error.message}`)
-        // });
+        const auth = getAuth(app);
+        
+        createUserWithEmailAndPassword(auth, userData.email, userData.password)
+        .then((userCredential) => {
+            // const user = userCredential.user;
+            authWindowOpenHandler();
+            isAuthHandler();
+        })
+        .catch((error) => {
+            console.error(`Error code: ${error.code}\r\nError messege: ${error.message}`)
+        });
 
         await axios.post(`https://messenger2-fcb59-default-rtdb.firebaseio.com/userData.json/`, userData)
             .catch((error) => {
                 console.error(`Error code: ${error.code}\r\nError messege: ${error.message}`)
             });
-        authWindowOpenHandler();
+        
     }
     
 
@@ -59,7 +59,7 @@ const RegForm = (props) => {
             </div>
             <div className="form-password">
                 <span className="form-reg_title">Password</span>
-                <input type="text" className="form-reg_input" placeholder="Your Password" value={userData.password} onChange={event => {
+                <input type="password" className="form-reg_input" placeholder="Your Password" value={userData.password} onChange={event => {
                     
                     setUserData({
                         ...userData, 
