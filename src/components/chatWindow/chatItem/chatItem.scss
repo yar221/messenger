@@ -1,0 +1,14 @@
+.chatItem{
+    height: 60px;
+    background: #e69e19;
+    cursor: pointer;
+    &_body{
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+    }
+    &-friendLogin{
+        color: #b419e6;
+    }
+}

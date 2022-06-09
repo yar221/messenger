@@ -9,10 +9,14 @@ const RegLogin = () => {
 
     const [isReg, setIsReg] = useState(false)
 
-    const { authWindowOpenHandler } = useContext(AppContext)
+    const { authWindowOpenHandler, setUserData, userData } = useContext(AppContext)
 
     const isRegHandler = () => {
         setIsReg(!isReg)
+        setUserData({
+            ...userData,
+            login: ''
+        })
     }
 
     return(

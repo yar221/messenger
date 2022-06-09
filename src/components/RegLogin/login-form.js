@@ -1,6 +1,5 @@
-import axios from "axios";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import AppContext from "../../context/AppContext";
 import {app} from '../../firebase';
 
@@ -8,37 +7,12 @@ import './forms.scss'
 
 const LoginForm = (props) => {
 
-    const {userData,setUserData,authWindowOpenHandler,isAuthHandler} = useContext(AppContext)
+    const { userData,setUserData,authWindowOpenHandler,isAuthHandler,axiosRequestLoginHandler } = useContext(AppContext)   
     
-    const axiosRequestLoginHandler = () => {
-        axios.get(`https://messenger2-fcb59-default-rtdb.firebaseio.com/userData.json`)
-            .then(response => {
-                let users = response.data
-                let usersCellName = []
-                let i = 0
-                Object.keys(users).map(item => {
-                    usersCellName[i] = item
-                    ++i
-                })
-                
-                for(let b = 0; b < usersCellName.length; b++){
-                    if(users[usersCellName[b]].email === userData.email){
-                        setUserData({
-                            ...userData,
-                            login: users[usersCellName[b]].login
-                        })
-                    }
-                }
-            })
-            
-    }
-
     const loginHandler = () => {
         const auth = getAuth(app);
         signInWithEmailAndPassword(auth, userData.email, userData.password)
-        .then((userCredential) => {
-            // const user = 
-            console.log(userCredential.user);
+        .then(() => {
             axiosRequestLoginHandler()
             authWindowOpenHandler()
             isAuthHandler()
