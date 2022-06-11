@@ -6,6 +6,11 @@
 .login-form, .reg-form{
     padding-top: 25px;
     .form{
+        &-errorMessage{
+            font-size: 14px;
+            color: red;
+            margin-top: 10px;
+        }
         &-login{
             margin-bottom: 15px;
             &_title{

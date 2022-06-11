@@ -30,12 +30,15 @@ function App() {
   }
 
   const authWindowOpenHandler = () => {
-    setState(prev => {
-      return {
-        ...prev,
-        isAuthWindowOpen: !state.isAuthWindowOpen
-      }
-  })
+    if(!state.isAuth){
+      setState(prev => {
+        return {
+          ...prev,
+          isAuthWindowOpen: !state.isAuthWindowOpen
+        }
+      })
+    }
+    
   }
 
   const axiosRequestLoginHandler = async () => {
@@ -63,23 +66,50 @@ function App() {
   const axiosRequestChatsHandler = async () => {
     await axios.get(`https://messenger2-fcb59-default-rtdb.firebaseio.com/chats.json`)
         .then(response => {
-            let users = response.data
-            let usersCellName = []
-            let i = 0
-            Object.keys(users).map(item => {
-                usersCellName[i] = item
-                ++i
-            })
-            let iterForAllChats = 0
-            for(let b = 0; b < usersCellName.length; b++){
-                if(users[usersCellName[b]].user1 === userData.login || users[usersCellName[b]].user2 === userData.login){
-                  setAllChats(oldArr => [...oldArr, users[usersCellName[b]]])
-                  // allChats[iterForAllChats] = users[usersCellName[b]]
-                    // iterForAllChats++
-                }
+            if(response.data){
+              let users = response.data
+              let usersCellName = []
+              let i = 0
+              Object.keys(users).map(item => {
+                  usersCellName[i] = item
+                  ++i
+              })
+              setAllChats([])
+              for(let b = 0; b < usersCellName.length; b++){
+                  if(users[usersCellName[b]].user1 === userData.login || users[usersCellName[b]].user2 === userData.login){
+                    setAllChats(oldArr => [...oldArr, users[usersCellName[b]]])
+                    // console.log(users[usersCellName[b]])
+                  }
+              }
+              // console.log(allChats)
+            }else{
+              setAllChats([])
             }
-            console.log(allChats)
         })
+  }
+
+  const axiosRequestDeleteChat = async (event, deletedFirend) => {
+    event.stopPropagation();
+    await axios.get(`https://messenger2-fcb59-default-rtdb.firebaseio.com/chats.json`)
+      .then(response => {
+        let users = response.data
+        let usersCellName = []
+        let i = 0
+        Object.keys(users).map(item => {
+            usersCellName[i] = item
+            ++i
+        })
+        for(let b = 0; b < usersCellName.length; b++){
+            if((users[usersCellName[b]].user1 === userData.login && users[usersCellName[b]].user2 === deletedFirend) || (users[usersCellName[b]].user2 === userData.login && users[usersCellName[b]].user1 === deletedFirend)){
+              axios.delete(`https://messenger2-fcb59-default-rtdb.firebaseio.com/chats/${usersCellName[b]}.json`)
+                .then(() => {
+                  axiosRequestChatsHandler()
+                })
+              console.log(`https://messenger2-fcb59-default-rtdb.firebaseio.com/chats/${usersCellName[b]}.json`)
+              
+            }
+        }
+      })
   }
 
   useEffect(() => {
@@ -90,7 +120,7 @@ function App() {
 
   return (
     <div className='App'>
-      <AppContext.Provider value = {{state,authWindowOpenHandler,userData,setUserData,isAuthHandler,axiosRequestLoginHandler,axiosRequestChatsHandler, allChats}} >
+      <AppContext.Provider value = {{state,authWindowOpenHandler,userData,setUserData,isAuthHandler,axiosRequestLoginHandler,axiosRequestChatsHandler, allChats, axiosRequestDeleteChat}} >
         <Header />
         {state.isAuthWindowOpen ? <RegLogin /> : null}
         {state.isAuth ? <ChatWindow /> : <div className='_container'>Login to your account to start chatting</div>}

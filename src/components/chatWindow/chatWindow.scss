@@ -41,15 +41,32 @@
                 border-right: 3px solid #e95861;
                 height: 600px;
             }
+            
             &-chat{
                 flex: 0 1 70%;
                 height: 600px;
                 display: flex;
                 flex-direction: column;
-                justify-content: flex-end
+                justify-content: flex-end;
+                
             }
             &-writeMes{
                 .writeMes{
+                    &-top_block{
+                        overflow-y: scroll;
+                        &::-webkit-scrollbar{
+                            color: #007bff;
+                            max-width: 5px;
+                        }
+                        &::-webkit-scrollbar-track{
+                            background: inherit;
+                        }
+                        &::-webkit-scrollbar-thumb{
+                            background: rgb(151, 139, 139);
+                            border-radius: 10px;
+                        }
+                        max-height: 565px;
+                    }
                     &-form{
                         display: flex;
                     }

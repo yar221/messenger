@@ -6,7 +6,7 @@ import AppContext from '../../context/AppContext'
 import Loading from '../loadingName/loadingName'
 
 const Header = () => {
-    const {state, authWindowOpenHandler, userData, axiosRequestChatsHandler} = useContext(AppContext)
+    const {state, authWindowOpenHandler, userData} = useContext(AppContext)
 
     return(
         <header className='header'>

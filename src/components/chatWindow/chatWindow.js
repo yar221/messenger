@@ -1,42 +1,65 @@
-import { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import AppContext from '../../context/AppContext'
 import ChatItem from './chatItem/chatItem'
 import './chatWindow.scss'
 import MessageItem from './messageItem/messageItem'
-import { collection, addDoc } from "firebase/firestore"; 
+import { collection, addDoc, onSnapshot} from "firebase/firestore"; 
 import { db } from '../../firebase'
 import axios from 'axios'
+import { query } from 'firebase/firestore'
+import { orderBy } from 'firebase/firestore'
+import { useEffect } from 'react'
 
 const ChatWindow = () => {
 
-    const { userData, state, allChats } = useContext(AppContext)
+    const { userData, allChats, axiosRequestChatsHandler } = useContext(AppContext)
 
     let [ searchFriend, setSearchFriend ] = useState('')
     let [ chosenFriend, setChosenFriend ] = useState('')
+    let [ message, setMessage] = useState('')
+    let [ allMessages, setAllMessages] = useState([])
+    let [ numberOfChat, setNumberOfChat] = useState()
     
-
-    const aa = async (event) => {
+    const sendMessage = async (event) => {
         event.preventDefault()
-        
-        try {
-            const docRef = await addDoc(collection(db, `${userData.login}-${chosenFriend}`), {
-                messege: '',
-                login: userData.login,
-                date: {
-                    hour: new Date().getHours(),
-                    minutes: new Date().getMinutes(),
-                    sec: new Date().getSeconds(),
-                    day: new Date().getDate(),
-                    month: new Date().getMonth(),
-                    year: new Date().getFullYear(),
-                },
-                createdAt: Date.now()
-            });
-        } catch (e) {
-            console.error("Error adding document: ", e);
+        if(message){
+            setMessage('')
+            try {
+                await addDoc(collection(db, `${allChats[numberOfChat].user1}-${allChats[numberOfChat].user2}`), {
+                    messege: message,
+                    login: userData.login,
+                    date: {
+                        hour: new Date().getHours(),
+                        minutes: new Date().getMinutes(),
+                        sec: new Date().getSeconds(),
+                        day: new Date().getDate(),
+                        month: new Date().getMonth(),
+                        year: new Date().getFullYear(),
+                    },
+                    createdAt: Date.now()
+                });
+            } catch (e) {
+                console.error("Error adding document: ", e);
+            }
+        }else{
+            alert('Сообщение не должно быть пустым')
         }
     }
+    
+    const readMessagesRealTime = (user1, user2) => {
 
+        const q = query(collection(db, `${user1}-${user2}`), orderBy("createdAt"));
+
+        onSnapshot(q, (querySnapshot) => {
+            setAllMessages([])
+            querySnapshot.forEach((doc) => {
+                setAllMessages(oldArr => [...oldArr, doc.data()])
+            });
+        });
+    }
+    useEffect(() => {
+        readMessagesRealTime()
+    }, [chosenFriend])
     const createNewChat = async () => {
         let chatExist = false
         await axios.get(`https://messenger2-fcb59-default-rtdb.firebaseio.com/chats.json`)
@@ -53,7 +76,7 @@ const ChatWindow = () => {
     
                     for(let b = 0; ; b++){
                         if(b === usersCellName.length){
-                            
+                            chatExist = true
                             break
                         }
                         if(users[usersCellName[b]].chatName === `${searchFriend}-${userData.login}` || users[usersCellName[b]].chatName === `${userData.login}-${searchFriend}`){
@@ -71,12 +94,13 @@ const ChatWindow = () => {
                 user1: userData.login,
                 user2: searchFriend
             })
+            console.log(`${userData.login}-${searchFriend}`,userData.login,searchFriend )
+            axiosRequestChatsHandler()
         }
-        
         setSearchFriend('')
     }
 
-    const a = async (event) => {
+    const addNewFriend = async (event) => {
         event.preventDefault()
 
         await axios.get(`https://messenger2-fcb59-default-rtdb.firebaseio.com/userData.json`)
@@ -100,14 +124,17 @@ const ChatWindow = () => {
                 }
             }
         })
-    }    
+    }
 
     return(
         <div className="chatWindow">
             <div className="chatWindow_container _container">
                 <div className="chatWindow_body">
                     <div className="chatWindow_search-block search">
-                        <form action="#" className="search-form" onSubmit={a}>
+                        <form action="#" className="search-form" onSubmit={(event) => {
+                                addNewFriend(event)
+
+                            }}>
                             <input type="text" className="search-input" placeholder="Login of the person you want to chat with" value = {searchFriend} onChange = {event => {
                                 setSearchFriend(event.target.value)
                             }}/>
@@ -117,16 +144,22 @@ const ChatWindow = () => {
                     <div className="chatWindow_bottom-block bottom">
                         <div className="bottom-friends">
                             {allChats.map((item, key) => {
-                                return <ChatItem key={key} friendLogin = {item.user1 === userData.login ? item.user2 : item.user1}/>
+                                return <ChatItem setNumberOfChat = {setNumberOfChat} number ={key} friendLogin = {item.user1 === userData.login ? item.user2 : item.user1} readMessagesRealTime={readMessagesRealTime} setChosenFriend={setChosenFriend} key={0} />
                             })}
                             
                         </div>
                         <div className="bottom-chat">
                             <div className="bottom-writeMes writeMes">
-                                <form className="writeMes-form" >
-                                    <input type="text" className="writeMes_input" placeholder='Your message'/>
+                                <div className="writeMes-top_block">
+                                    {allMessages.map((item, key) => {
+                                        return <MessageItem  key = {key} message={item.messege} position={item.login === userData.login ? 'right' : 'left'}/>
+                                    })}
+                                </div>
+                                
+                                {chosenFriend && <form className="writeMes-form" onSubmit={sendMessage}>
+                                    <input type="text" className="writeMes_input" placeholder='Your message' value={message} onChange={event => setMessage(event.target.value)}/>
                                     <button type='submit' className="writeMes_button" >Send</button>
-                                </form>
+                                </form>}
                             </div>
                         </div>
                     </div>

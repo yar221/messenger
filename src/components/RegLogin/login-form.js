@@ -1,4 +1,5 @@
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useEffect } from "react";
 import { useContext } from "react";
 import AppContext from "../../context/AppContext";
 import {app} from '../../firebase';
@@ -8,6 +9,8 @@ import './forms.scss'
 const LoginForm = (props) => {
 
     const { userData,setUserData,authWindowOpenHandler,isAuthHandler,axiosRequestLoginHandler } = useContext(AppContext)   
+
+    const {validationOfLinesRegLogin, passwordHandler, loginValidHandler} = props
     
     const loginHandler = () => {
         const auth = getAuth(app);
@@ -22,7 +25,16 @@ const LoginForm = (props) => {
         });
 
     }
-    
+
+    const resetValidation = () => {
+        validationOfLinesRegLogin.password.valid = false
+        validationOfLinesRegLogin.login.valid = false
+    }
+
+    useEffect(() => {
+        passwordHandler(userData.password)
+        loginValidHandler(userData.login)
+    },[userData])
     
     const {isRegHandler} = props
 
@@ -38,6 +50,7 @@ const LoginForm = (props) => {
                     })
                     
                     }}/>
+                    {!validationOfLinesRegLogin.login.valid ? <span className="form-errorMessage">{validationOfLinesRegLogin.login.errorMessage}</span> : null}  
             </div>
             <div className="form-password">
                 <span className="form-login_title">Password</span>
@@ -49,12 +62,16 @@ const LoginForm = (props) => {
                     })
                     
                     }}/>
+                    {!validationOfLinesRegLogin.password.valid ? <span className="form-errorMessage">{validationOfLinesRegLogin.password.errorMessage}</span> : null}  
             </div>
             <button className="form-submit" type="submit" onClick={event => {
                     loginHandler()   
                     event.preventDefault()
                 }}>Login</button>
-            <div className="form-change" onClick={isRegHandler}>Do you want to register?</div>
+            <div className="form-change" onClick={() => {
+                    isRegHandler()
+                    resetValidation()
+                }}>Do you want to register?</div>
         </form>
     )
 }
